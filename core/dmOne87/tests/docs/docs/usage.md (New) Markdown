@@ -1,0 +1,8 @@
+# Usage
+
+## Basic
+`python core/dmOne87/dmone87.py`
+
+## Advanced
+- Offload: Connect Pi, run tasks via ssh (placeholder).
+- RF: `screen /dev/ttyUSB0 115200`
