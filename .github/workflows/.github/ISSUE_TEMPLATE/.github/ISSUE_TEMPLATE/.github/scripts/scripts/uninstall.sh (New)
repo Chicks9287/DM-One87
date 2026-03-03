@@ -1,0 +1,18 @@
+#!/bin/bash
+# Uninstall Script
+
+set -euo pipefail
+
+echo "[!] Uninstalling Omega-Stack..."
+
+# Remove Kali
+proot-distro remove kali
+
+# Clean files
+rm -rf ../core/auto-rooter/magisk_modules/*
+rm -f ../logs/*
+
+# Revoke perms
+chmod 600 /dev/ttyUSB* 2>/dev/null
+
+echo "[+] Uninstalled."
