@@ -1,0 +1,9 @@
+# Auto-Rooter
+
+## Usage
+Place Magisk modules (.zip) in `magisk_modules/`.
+
+## Warnings
+- Backup device before flashing.
+- Compatible with Magisk v25+.
+- RPi: Use alternative rooting if needed (e.g., pi-root scripts).
