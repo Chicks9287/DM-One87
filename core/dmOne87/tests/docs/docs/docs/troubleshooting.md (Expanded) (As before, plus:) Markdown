@@ -1,0 +1,2 @@
+- CPU Spikes: Adjust threshold in config.yaml.
+- Bridge Fails: Check dmesg for USB errors.
