@@ -1,0 +1,9 @@
+# Hardware Setup
+
+## Flipper Zero
+- Connect via USB-C OTG.
+- Baud: 115200.
+
+## Pi 5
+- USB tethering for compute offload.
+- SSH: `ssh pi@raspberrypi.local`
