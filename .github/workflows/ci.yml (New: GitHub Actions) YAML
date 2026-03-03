@@ -1,0 +1,23 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    - name: Install deps
+      run: pip install black pytest
+    - name: Lint Bash
+      run: |
+        sudo apt-get install shellcheck
+        shellcheck scripts/*.sh
+    - name: Format Python
+      run: black --check core/dmOne87/*.py
+    - name: Test Python
+      run: pytest core/dmOne87/tests/
