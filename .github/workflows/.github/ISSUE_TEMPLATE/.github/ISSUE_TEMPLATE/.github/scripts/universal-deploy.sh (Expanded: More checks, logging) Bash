@@ -1,0 +1,69 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# Omega-Stack Universal Deployment Script
+# Enhanced: Logging, platform-specific logic, dependency checks.
+
+set -euo pipefail
+
+LOG_FILE="../logs/deploy.log"
+mkdir -p ../logs
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "[!] Initiating Universal Build... $(date)"
+
+# 1. Detection
+ARCH=$(uname -m)
+ROOT_STATUS=$(id -u)
+PLATFORM=$(uname -o 2>/dev/null || echo "Unknown")  # Android vs. GNU/Linux for RPi
+echo "[+] Architecture: $ARCH"
+echo "[+] Root: $ROOT_STATUS (0 = rooted)"
+echo "[+] Platform: $PLATFORM"
+
+# Dependency Check
+command -v git >/dev/null || { echo "[-] git not found! Install via pkg."; exit 1; }
+command -v wget >/dev/null || { echo "[-] wget not found!"; exit 1; }
+
+# 2. Setup Hubs
+echo "[+] Updating packages..."
+pkg update -y && pkg upgrade -y || { echo "[-] Update failed!"; exit 1; }
+pkg install -y proot-distro git wget python termux-api  # Added termux-api for hardware access
+
+# Platform-Specific
+if [[ "$PLATFORM" == *"Android"* ]]; then
+    echo "[+] Android detected. Enabling storage permissions..."
+    termux-setup-storage
+fi
+
+# 3. Deploy NetHunter/Kali
+if [ "$ROOT_STATUS" -eq 0 ]; then
+    echo "[+] Rooted. Deploying NetHunter..."
+    if [ -d "../core/auto-rooter/magisk_modules" ] && [ "$(ls -A ../core/auto-rooter/magisk_modules)" ]; then
+        read -p "[?] Flash magisk modules? (y/n): " confirm
+        if [ "$confirm" = "y" ]; then
+            # Placeholder: Use magisk --install-module <file>
+            for module in ../core/auto-rooter/magisk_modules/*.zip; do
+                magisk --install-module "$module" || echo "[-] Failed: $module"
+            done
+        fi
+    else
+        echo "[-] No modules found."
+    fi
+else
+    echo "[-] Rootless. Installing Kali via proot..."
+    proot-distro install kali || { echo "[-] Failed!"; exit 1; }
+    proot-distro login kali -- apt update && apt install -y nethunter-tools  # Example extension
+fi
+
+# 4. Bridge Peripherals
+echo "[!] Configuring bridges..."
+if ls /dev/ttyUSB* >/dev/null 2>&1; then
+    chmod 666 /dev/ttyUSB*  # Permissions
+    echo "[+] USB devices detected. Bridging Flipper/Pi..."
+    # Placeholder: Use screen or minicom for serial
+else
+    echo "[-] No USB devices. Connect FlipperZero/Pi5 via OTG."
+fi
+
+# 5. Submodules (if using)
+git submodule update --init --recursive || echo "[!] Submodules init (optional)."
+
+echo "[+] Deployment Complete. Logs: $LOG_FILE"
