@@ -1,0 +1,6 @@
+#!/bin/bash
+# Demo: Deploy and run
+
+bash ../scripts/universal-deploy.sh
+python ../core/dmOne87/dmone87.py &
+echo "[+] Demo running. Check logs."
