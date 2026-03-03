@@ -1,0 +1,14 @@
+# Installation Guide
+
+## Android
+1. Install Termux from F-Droid.
+2. Run `termux-change-repo` for mirrors.
+3. Follow quick start.
+
+## RPi
+1. Ensure Raspberry Pi OS (64-bit).
+2. Install Termux-like env: `apt install proot`.
+3. Clone and deploy.
+
+## Common Issues
+- OTG: Enable in Android settings.
