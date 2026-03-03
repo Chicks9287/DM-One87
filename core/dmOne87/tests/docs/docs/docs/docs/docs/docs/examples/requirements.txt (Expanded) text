@@ -1,0 +1,2 @@
+pyyaml
+# Note: Install via pkg in Termux: pkg install python-yaml
