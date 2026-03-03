@@ -1,0 +1,5 @@
+[tool.black]
+line-length = 88
+
+[tool.pytest]
+testpaths = ["core/dmOne87/tests"]
