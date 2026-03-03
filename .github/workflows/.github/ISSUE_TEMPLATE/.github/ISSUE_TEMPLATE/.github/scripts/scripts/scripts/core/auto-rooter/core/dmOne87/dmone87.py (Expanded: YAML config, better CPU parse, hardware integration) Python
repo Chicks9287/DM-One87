@@ -1,0 +1,64 @@
+import os
+import time
+import subprocess
+import logging
+import yaml  # For config
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(asctime)s - %(message)s', filename='../../logs/dmone87.log')
+
+def load_config():
+    """Load YAML config."""
+    with open('config.yaml', 'r') as f:
+        return yaml.safe_load(f)
+
+CONFIG = load_config()
+CPU_THRESHOLD = CONFIG.get('cpu_threshold', 95)
+INTERVAL = CONFIG.get('interval', 5)
+DELTA_DM87_BASE = CONFIG.get('delta_dm87', 50)
+
+def get_cpu_usage():
+    """Accurate CPU % via two samples."""
+    def cpu_sample():
+        with open('/proc/stat') as f:
+            line = f.readline().split()
+        return int(line[1]) + int(line[2]) + int(line[3]), int(line[4])  # user+nice+system, idle
+
+    user1, idle1 = cpu_sample()
+    time.sleep(0.1)
+    user2, idle2 = cpu_sample()
+    user_delta = user2 - user1
+    idle_delta = idle2 - idle1
+    total_delta = user_delta + idle_delta
+    return (user_delta / total_delta) * 100 if total_delta else 0.0
+
+def kill_ghost_processes():
+    logging.info("[!] Scanning ghosts...")
+    try:
+        # Enhanced: Use ps to find specific patterns
+        result = subprocess.run(["ps", "aux"], capture_output=True, text=True)
+        for line in result.stdout.splitlines():
+            if "nethunter_leaked" in line:  # Pattern match
+                pid = line.split()[1]
+                subprocess.run(["kill", "-9", pid])
+        logging.info("[+] Ghosts terminated.")
+    except Exception as e:
+        logging.error(f"Error: {e}")
+
+def update_console_display(v_pi5_out=1000, v_phone_in=800):
+    """Bitrate Fix with hardware placeholders."""
+    # Placeholder: Integrate termux-api for real hardware stats
+    delta_dm87 = DELTA_DM87_BASE + (get_cpu_usage() / 10)  # Dynamic
+    b_sync = min(v_pi5_out, v_phone_in) - delta_dm87
+    logging.info(f"[+] UI Updated. Sync Bitrate: {b_sync} Mbps")
+    # TODO: termux-notification for alerts
+
+if __name__ == "__main__":
+    logging.info("[!] dmOne87 Started...")
+    while True:
+        cpu = get_cpu_usage()
+        if cpu > CPU_THRESHOLD:
+            logging.warning(f"High CPU: {cpu}%")
+            kill_ghost_processes()
+        update_console_display()
+        time.sleep(INTERVAL)
