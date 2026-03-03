@@ -1,0 +1,9 @@
+import pytest
+from dmone87 import get_cpu_usage, load_config
+
+def test_get_cpu_usage():
+    assert 0 <= get_cpu_usage() <= 100
+
+def test_load_config():
+    config = load_config()
+    assert 'cpu_threshold' in config
