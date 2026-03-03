@@ -1,0 +1,10 @@
+#!/bin/bash
+# Config Helper: Edit YAML or env vars
+
+set -euo pipefail
+
+echo "[!] Configuring..."
+# Example: Edit core/dmOne87/config.yaml
+nano core/dmOne87/config.yaml  # Or use sed for automation
+
+echo "[+] Config updated."
